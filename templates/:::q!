@@ -1,0 +1,14 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: jenkins_cicd_techforce_ing
+  namespace: {{ .Values.namespace }}
+spec:
+  rules:
+  - host: cicd.jenkins.techforce.ai
+    http:
+      paths:
+      - backend:
+          serviceName: jenkins_svc_cicd_techforce
+          servicePort: 8080
+        path: /

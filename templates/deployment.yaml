@@ -1,0 +1,39 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+    name: jenkins_cicd_techforce
+    namespace: {{ .Values.namespace }}
+spec:
+    replicas: 1
+    template:
+        metadata:
+            labels:
+                app: jenkins_cicd_techforce
+        spec:
+            containers:
+            - name: jenkins
+              image: lakshmanavinod9/jenkins:1.0
+              resources:
+                limits:
+                  cpu: {{ .Values.master.cpu }}
+                  memory: {{ .Values.master.memory }}
+                requests:
+                  cpu: "1"
+                  memory: "2Gi"
+              env:
+                # Read the configuration-as-code from the ConfigMap
+                - name: CASC_JENKINS_CONFIG
+                  value: /var/jenkins_config/jenkins.yaml
+              ports:
+              - name: http-port
+                containerPort: 8080
+              - name: jnlp-port
+                containerPort: 50000
+              volumeMounts:
+              - mountPath: /var/jenkins_home
+                name: jenkins_cicd_master_techforce_volume
+              # Mount the Jenkins theme
+            volumes:
+              - name: jenkins_cicd_master_techforce_volume
+                persistentVolumeClaim:
+                  claimName: jenkins_cicd_master_techforce_volume

@@ -1,0 +1,2 @@
+#Default values for jenkins techforce ai.
+namespace: "cicd"
