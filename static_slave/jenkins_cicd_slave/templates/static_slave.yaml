@@ -1,0 +1,55 @@
+---
+apiVersion: "extensions/v1beta1"
+kind: "ReplicaSet"
+metadata:
+  name: "jenkins-cicd-techforce-static-slave"
+  labels:
+    name: "jenkins-cicd-techforce-static-slave"
+spec:
+  replicas: {{ .Values.slave.replicas }}
+  template:
+    metadata:
+      name: "jenkins-cicd-techforce-static-slave"
+      labels:
+        name: "jenkins-cicd-techforce-static-slave"
+    spec:
+      containers:
+        - name: "jenkins-slave"
+          image: "lakshmanavinod9/static-slave-image:1.0"
+          imagePullPolicy: Always
+          resources:
+            limits:
+              cpu: "{{ .Values.slave.cpu }}"
+              memory: "{{ .Values.slave.memory }}"
+            requests:
+              cpu: 256m
+              memory: 512Mi
+          volumeMounts:
+            - name: jenkins-cicd-techforce-static-slave-pvc
+              mountPath: /home/jenkins-slave
+          command:
+            - "/usr/local/bin/jenkins-slave.sh"
+            - "-master"
+            - "http://cicd.jenkins.techforce.ai/"
+            - "-tunnel"
+            - "jenkins-svc-cicd-techforce:50000"
+            - "-username"
+            - "admin"
+            - "-password"
+            - "Techforce123"
+            - "-executors"
+            - "{{ .Values.slave.executors }}"
+            - -labels
+            - techforce-cicd
+          livenessProbe:
+            exec:
+              command:
+              - sh
+              - -c
+              - "netstat -tan | grep ESTABLISHED"
+            initialDelaySeconds: 60
+            timeoutSeconds: 1
+      volumes:
+         - name: jenkins-cicd-techforce-static-slave-pvc
+           persistentVolumeClaim:
+              claimName: jenkins-cicd-techforce-static-slave

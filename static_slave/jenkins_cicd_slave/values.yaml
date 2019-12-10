@@ -1,0 +1,16 @@
+#Default values for jenkins techforce ai.
+namespace: "cicd"
+
+master:
+  cpu: "2"
+  memory: "4Gi"
+  storagecapacity: "10Gi"
+
+slave:
+  cpu: "1"
+  memory: "2Gi"
+  replicas: 1
+  executors: 4
+  storagecapacity: "4Gi"
+
+storageclass: "standard"

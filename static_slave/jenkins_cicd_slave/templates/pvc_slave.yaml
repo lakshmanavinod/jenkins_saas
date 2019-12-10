@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: "jenkins-cicd-techforce-static-slave"
+  namespace: "{{ .Values.namespace }}"
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: "{{ .Values.storageclass }}"  
+  resources:
+    requests:
+      storage: "{{ .Values.slave.storagecapacity }}"
