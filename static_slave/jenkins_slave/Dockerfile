@@ -49,6 +49,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     # Cleanup uncessary files
     && apt-get clean \
     && rm -rf /tmp/* ~/*.tgz
+
+### Install kubectl
+
+# Set the Kubernetes version as found in the UCP Dashboard or API
+ENV k8sversion v1.11.5
+# Get the kubectl binary.
+RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$k8sversion/bin/linux/amd64/kubectl \
+&& chmod +x ./kubectl \
+&& mv ./kubectl /usr/local/bin/kubectl
     
 ##### Net-tools###########
 RUN apt-get update \
@@ -110,14 +119,13 @@ RUN curl http://chromedriver.storage.googleapis.com/76.0.3809.12/chromedriver_li
 RUN unzip $CHROMEDRIVER_DIR/chromedriver* -d $CHROMEDRIVER_DIR
 
 RUN chmod 777 -R /chromedriver
-
 # Put Chromedriver into the PATH
 ENV PATH $CHROMEDRIVER_DIR:$PATH
-
 
 ## Installing Gcloud utility
 
 RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg  add - && apt-get update -y && apt-get install google-cloud-sdk -y
+
 
 USER "${JENKINS_USER}"
 #USER root
