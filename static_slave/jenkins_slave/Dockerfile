@@ -12,7 +12,7 @@ ENV DOCKER_VERSION 17.09.1-ce
 ENV HELM_VERSION v2.9.1
 ENV HELM_FILENAME helm-${HELM_VERSION}-linux-amd64.tar.gz
 
-RUN useradd -m -d "${JENKINS_HOME}" -u 1000 -U -s /sbin/nologin "${JENKINS_USER}"
+RUN useradd -m -d "${JENKINS_HOME}" -u 1000 "${JENKINS_USER}"
 ############# Adding the below line to add jenkins user to root group #######
 #RUN usermod -g 0 jenkins
 ################
@@ -20,6 +20,8 @@ RUN curl --create-dirs -sSLo /usr/share/jenkins/swarm-client-${JENKINS_SWARM_VER
   ${JENKINS_SWARM_DOWNLOAD_SITE}/${JENKINS_SWARM_VERSION}/swarm-client-${JENKINS_SWARM_VERSION}.jar \
   && chmod 755 /usr/share/jenkins
 
+### Creating docker group and adding jenkins user to it
+RUN groupadd docker && usermod -aG docker ${JENKINS_USER}
 
 ENV MAVEN_CONFIG ${JENKINS_HOME}/.m2
 COPY jenkins-slave.sh /usr/local/bin/jenkins-slave.sh
@@ -41,7 +43,7 @@ RUN set -x \
         && rm docker.tgz \
         && docker -v
 # install helm
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y --no-install-recommends && apt-get install -y sudo \
     # Install Helm
     && curl -L http://storage.googleapis.com/kubernetes-helm/helm-${HELM_VERSION}-linux-amd64.tar.gz -o /tmp/helm.tar.gz \
     && tar -zxvf /tmp/helm.tar.gz -C /tmp \
@@ -50,6 +52,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get clean \
     && rm -rf /tmp/* ~/*.tgz
 
+RUN echo "${JENKINS_USER} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 ### Install kubectl
 
 # Set the Kubernetes version as found in the UCP Dashboard or API
